@@ -1,0 +1,217 @@
+package com.bridgeway.resources;
+
+//import javax.ws.rs.Path;
+import org.json.JSONObject;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.Header;
+
+import java.io.BufferedReader;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.InputStreamReader;
+import java.io.InputStream;
+
+import com.bridgeway.metadata.ObjectCreationInfo;
+import com.bridgeway.metadata.PropertyValue;
+import com.bridgeway.metadata.PropertyDef;
+import com.bridgeway.metadata.Lookup;
+import com.bridgeway.metadata.MFDataType;
+import com.bridgeway.metadata.TypedValue;
+import com.bridgeway.metadata.UploadInfo;
+
+public class AdminData {
+	
+	public JSONObject doPost(String uri, String request) throws Exception {
+		JSONObject response = null;
+
+		HttpClient client = new HttpClient();
+
+		PostMethod post = new PostMethod(uri);
+
+		try {
+			//post.addRequestHeader("X-Username", "andre");
+			//post.addRequestHeader("X-Password", "123456");
+			//post.addRequestHeader("X-Vault", "{045A9EBC-3358-4D58-9576-AF3B7BD9DDEE}");
+			//post.addRequestHeader("X-WindowsUser", "false");
+			//post.addRequestHeader("Accept", "application/json");
+			//post.addRequestHeader(headerName, headerValue);
+			//post.addRequestHeader("Content-Type", "application/json");
+
+			StringRequestEntity requestEntity = new StringRequestEntity(request, "application/json", "utf-8");
+			post.setRequestEntity(requestEntity);
+			
+			int statusCode = client.executeMethod(post);
+			
+			Header contentType = post.getResponseHeader("Content-Type");
+			if (contentType == null || !"application/json; charset=utf-8".equalsIgnoreCase(contentType.getValue())) {
+			//if (contentType == null || !"application/json".equalsIgnoreCase(contentType.getValue())) {
+				throw new Exception("Response format not valid. application/json expected");
+			}
+
+			response = new JSONObject(getResponseBodyAsString(post.getResponseBodyAsStream()));			
+			
+			if (statusCode != 200) {
+				throw new Exception(response.getString("error"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			post.releaseConnection();
+		}
+
+		return response;
+	}
+	
+	private static String getResponseBodyAsString(InputStream in) throws Exception {
+		String content = null;
+		try {
+			if (in != null) {
+				StringBuilder sb = new StringBuilder();
+				String line;
+				BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+				while ((line = reader.readLine()) != null) {
+					sb.append(line);
+				}
+				content = new String(sb);
+			}
+		} finally {
+			try {
+				if (in != null)
+					in.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return content;
+	}
+	
+	public JSONObject pushMatter(String uri, String request, String token, String url){
+		
+		//fileUploadRequest(url, token);
+		JSONObject response = null;
+		
+		HttpClient client = new HttpClient();
+
+		//PostMethod post = new PostMethod(uri);
+		PostMethod post = new PostMethod(uri);
+		try {
+			
+			//get.addRequestHeader("X-Client", "cliente2");
+			//get.addRequestHeader("X-Version", "version2");
+			post.addRequestHeader("X-Authentication", token);
+			//get.addRequestHeader("Content-Type", "application/json");
+			
+			
+			StringRequestEntity requestEntity = new StringRequestEntity(request, "application/json", "utf-8");
+			post.setRequestEntity(requestEntity);
+						
+			int statusCode = client.executeMethod(post);
+			
+			Header contentType = post.getResponseHeader("Content-Type");
+			if (contentType == null || !"application/json; charset=utf-8".equalsIgnoreCase(contentType.getValue())) {
+				throw new Exception("Response format not valid. application/json expected");
+			}
+
+			response = new JSONObject(getResponseBodyAsString(post.getResponseBodyAsStream()));			
+			
+			if (statusCode != 200) {
+				throw new Exception(response.getString("error"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			post.releaseConnection();
+		}
+
+		
+		return response;
+		
+	}
+	
+	private void fileUploadRequest(String url, String token){
+		
+		HttpClient client = new HttpClient();
+
+		PostMethod post = new PostMethod(url);
+		try {
+			post.addRequestHeader("X-Authentication", token);
+			post.addRequestHeader("Content-Type", "application/octet-stream");
+			
+			int statusCode = client.executeMethod(post);
+			
+			Header contentType = post.getResponseHeader("Content-Type");
+			if (contentType == null || !"application/json; charset=utf-8".equalsIgnoreCase(contentType.getValue())) {
+				throw new Exception("Response format not valid. application/json expected");
+			}
+
+		//	response = new JSONObject(getResponseBodyAsString(post.getResponseBodyAsStream()));			
+			
+			if (statusCode != 200) {
+				//throw new Exception(response.getString("error"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			post.releaseConnection();
+		}
+
+		
+	}
+	
+	public ObjectCreationInfo createObjectMatter(String name, String type, String status, String dateOpened,
+			String url, String securityGroup, String matterNumber){
+		
+		//agrego el campo name con id 0
+		TypedValue typedValue1 = new TypedValue(MFDataType.Text,"Matter");
+		TypedValue typedValue2 = new TypedValue(MFDataType.Text,name);
+		TypedValue typedValue3 = new TypedValue(MFDataType.Text,type);
+		TypedValue typedValue4 = new TypedValue(MFDataType.Text,status);
+		TypedValue typedValue5 = new TypedValue(MFDataType.Date,dateOpened);
+		TypedValue typedValue6 = new TypedValue(MFDataType.Text,url);
+		TypedValue typedValue7 = new TypedValue(MFDataType.MultiSelectLookup,securityGroup);
+		TypedValue typedValue8 = new TypedValue(MFDataType.Text,matterNumber);
+		//agrego campo q llevara objeto Lookup
+		TypedValue typedValue9 = new TypedValue(MFDataType.Lookup,new Lookup(0));
+		
+		PropertyValue propertyValue1 = new PropertyValue(0,typedValue1);
+		PropertyValue propertyValue2 = new PropertyValue(1036,typedValue2);
+		PropertyValue propertyValue3 = new PropertyValue(1028,typedValue3);
+		PropertyValue propertyValue4 = new PropertyValue(1045,typedValue4);
+		PropertyValue propertyValue5 = new PropertyValue(1047,typedValue5);
+		PropertyValue propertyValue6 = new PropertyValue(1046,typedValue6);
+		PropertyValue propertyValue7 = new PropertyValue(1025,typedValue7);
+		PropertyValue propertyValue8 = new PropertyValue(1026,typedValue8);
+		PropertyValue propertyValue9 = new PropertyValue(100,typedValue9);
+		
+		PropertyValue[] proValue= new PropertyValue[9];
+		proValue[0]=propertyValue1;
+		proValue[1]=propertyValue2;
+		proValue[2]=propertyValue3;
+		proValue[3]=propertyValue4;
+		proValue[4]=propertyValue5;
+		proValue[5]=propertyValue6;
+		proValue[6]=propertyValue7;
+		proValue[7]=propertyValue8;
+		proValue[8]=propertyValue9;
+		
+		ObjectCreationInfo obj = new ObjectCreationInfo();
+		//obj.PropertyValues;
+		obj.PropertyValues=proValue;
+		/**obj.PropertyValues[1]=propertyValue2;
+		obj.PropertyValues[2]=propertyValue3;
+		obj.PropertyValues[3]=propertyValue4;
+		obj.PropertyValues[4]=propertyValue5;
+		obj.PropertyValues[5]=propertyValue6;
+		obj.PropertyValues[6]=propertyValue7;
+		//ObjectCreationInfo aa=null;
+		**/
+		return obj;
+	}
+	
+
+}

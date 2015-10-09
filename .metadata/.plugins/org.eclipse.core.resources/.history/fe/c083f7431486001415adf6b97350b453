@@ -1,0 +1,111 @@
+package com.bridgeway.bsi;
+
+import com.bridgeway.metadata.ObjectCreationInfo;
+import com.bridgeway.resources.AdminData;
+import com.bridgeway.resources.AdminData2;
+import com.bridgeway.resources.ObjectSerializer;
+
+import java.io.BufferedReader;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+public class Main {
+
+	public static void main(String[] args) throws MalformedURLException {
+		
+		//String urlFileUpload="http://54.86.209.232/REST/files";
+		String tokenEncrypted=null;
+		// TODO Auto-generated method stub
+		try {
+			tokenEncrypted= createTask();
+			System.out.println("el token es: "+tokenEncrypted);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		//pushMatter(tokenEncrypted, urlFileUpload);
+		seeItems(tokenEncrypted);
+		
+		
+		}
+	
+	public static String createTask( ) throws Exception {
+		String token = null;
+		
+		try {
+			JSONObject jsonObject = new JSONObject();
+			
+			jsonObject.put("Username", "apalacios");
+			jsonObject.put("Password", "archenemy2A");
+			jsonObject.put("WindowsUser", true);
+			jsonObject.put("Domain", "QA");
+			jsonObject.put("VaultGuid", "{045A9EBC-3358-4D58-9576-AF3B7BD9DDEE}");
+			
+			
+			AdminData admin = new AdminData();
+			JSONObject response = admin.doPost("http://54.86.209.232/REST/server/authenticationtokens",jsonObject.toString());
+			//JSONObject response = admin.doPost("http://localhost:8085/BDPS/tokens",jsonObject.toString());
+			token = response.getString("Value");
+			//System.out.println("el token es:"+token);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			
+			throw e;
+		}
+		
+		return token;
+
+	}
+	
+	public static JSONObject seeItems(String token){
+		AdminData admin = new AdminData();
+		JSONObject response = new JSONObject();
+		try {
+			response = admin.doGet("http://54.86.209.232/REST/view/items", token);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return response;
+	}
+	
+	public static JSONObject pushMatter(String token, String url){
+		
+		ObjectCreationInfo objCreation=null;
+		AdminData admin = new AdminData();
+		objCreation=admin.createObjectMatter("name2", "type2", "status2", "Feb/2/14", "www.google.com", "security2", "number2");
+	
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		gsonBuilder.registerTypeAdapter(ObjectCreationInfo.class, new ObjectSerializer());
+		Gson gson = gsonBuilder.create();
+		final String representationJSON = gson.toJson(objCreation);
+							
+    	JSONObject response = new JSONObject();
+		
+		//response = admin.pushMatter("http://54.86.209.232/REST/objects/"+103,jsonObject.toString(),token, url);
+		//response = admin.pushMatter("http://localhost:8085/BDPS/push",jsonObject.toString(),token);
+		response = admin.pushMatter("http://54.86.209.232/REST/objects/"+103,representationJSON,token, url);
+		return response;
+		
+	}
+	
+			
+
+	}
+
+
