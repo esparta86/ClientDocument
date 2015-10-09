@@ -1,5 +1,6 @@
 package com.mitratech.resources;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -7,12 +8,25 @@ public class Time {
 	
 	private Timer timer = new Timer(); 
     private int seconds=0;
+    private ArrayList<Integer> ArraytimePerDocument = new ArrayList<Integer>();
     
     class Count extends TimerTask {
         public void run() {
             seconds++;
             System.out.println("segundo: " + seconds);
         }
+    }
+    
+    public void setTimeInArray(int seconds){
+    	this.ArraytimePerDocument.add(seconds);
+    }
+    
+    public Integer getTotalUploadTime(){
+        int totalSeconds = 0;
+    	for(Integer sec : this.ArraytimePerDocument){
+        	totalSeconds = totalSeconds + sec;
+        }
+    	return totalSeconds;
     }
     
     public void Calculate()
@@ -24,6 +38,7 @@ public class Time {
     
     public void stop() {
         timer.cancel();
+        setTimeInArray(getSeconds());
     }
     
     public int getSeconds()

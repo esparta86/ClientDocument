@@ -32,6 +32,7 @@ import com.mitratech.metadata.ObjectCreationInfo;
 import com.mitratech.metadata.UploadInfo;
 import com.mitratech.resources.AdminData;
 import com.mitratech.resources.ObjectSerializer;
+import com.mitratech.resources.Time;
 
 public class Main {
 	public static String URL_MFILE_SERVER = "";
@@ -56,6 +57,9 @@ public class Main {
 		Logger logger = Logger.getLogger("MyLog"); 
 		FileHandler fh;
 		boolean validateArray = true;
+		Time timeCreateDocument = new Time();
+		
+		
 		try(DirectoryStream<Path> stream = Files.newDirectoryStream(p1)){
 			DateFormat dateFormat = new SimpleDateFormat(" yyyy-MM-dd 'T' HH.mm.ss aaa");//yyyy-MM-dd'T'HH:mm:ss
 	    	Date date = new Date();
@@ -112,17 +116,19 @@ public class Main {
 			    int totalMattersCount = arrayListMatterInfo.size();
 			    int totalMatters = arrayListMatterInfo.size();
 			    for(int matter=0;matter< arrayListMatterInfo.size() ;matter++){
-			    	
+			      	
 			      for(int doc =0 ;doc < NUMBER_DOCUMENTS ; doc++){
 			    	prefixMatter++;
 			        matterObject = arrayListMatterInfo.get(matter);
+			        timeCreateDocument.Calculate();  
 				    newDocumentObject(tokenEncrypted,"Aut Document "+(String)matterObject[0]+"#"+prefixMatter,(int)matterObject[1],logger);
-			        System.out.println("Remaining Documents # "+--totalDocuments);
+			        timeCreateDocument.stop();
+				    System.out.println("Remaining Documents # "+--totalDocuments);
 			      }
 			      System.out.println("Remaining Matters # "+--totalMattersCount+"/"+totalMatters);
 			      prefixMatter=0;
 			    }
-			    
+			    System.out.println("Total Time in Seconds"+timeCreateDocument.getTotalUploadTime());
 			    JOptionPane.showMessageDialog(null, "The program ended successfully, check the log file if there are problems");
 			    
 				//System.out.println("el token es: "+tokenEncrypted);
