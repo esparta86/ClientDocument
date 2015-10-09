@@ -13,7 +13,7 @@ public class Time {
     class Count extends TimerTask {
         public void run() {
             seconds++;
-            System.out.println("segundo: " + seconds);
+            System.out.println("transaction time (Seconds): " + seconds);
         }
     }
     
@@ -46,8 +46,4 @@ public class Time {
         return this.seconds;
     }
     
-    
-    
-    
-
-}
+ }

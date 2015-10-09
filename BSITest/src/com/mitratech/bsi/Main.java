@@ -123,15 +123,14 @@ public class Main {
 			        timeCreateDocument.Calculate();  
 				    newDocumentObject(tokenEncrypted,"Aut Document "+(String)matterObject[0]+"#"+prefixMatter,(int)matterObject[1],logger);
 			        timeCreateDocument.stop();
-				    System.out.println("Remaining Documents # "+--totalDocuments);
+				    System.out.println("\nRemaining Documents # "+--totalDocuments);
 			      }
-			      System.out.println("Remaining Matters # "+--totalMattersCount+"/"+totalMatters);
+			      System.out.println("Remaining Matters # "+--totalMattersCount+"/"+totalMatters+"\n");
 			      prefixMatter=0;
 			    }
-			    System.out.println("Total Time in Seconds"+timeCreateDocument.getTotalUploadTime());
+			    System.out.println("\n\n  Total Time in Seconds : "+timeCreateDocument.getTotalUploadTime());
 			    JOptionPane.showMessageDialog(null, "The program ended successfully, check the log file if there are problems");
 			    
-				//System.out.println("el token es: "+tokenEncrypted);
 				} catch (Exception e) {
 					e.printStackTrace();
 					logger.info(e.toString());
