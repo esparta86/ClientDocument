@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -33,6 +34,7 @@ import com.mitratech.metadata.UploadInfo;
 import com.mitratech.resources.AdminData;
 import com.mitratech.resources.ObjectSerializer;
 import com.mitratech.resources.Time;
+import org.apache.commons.math3.stat.descriptive.*;
 
 public class Main {
 	public static String URL_MFILE_SERVER = "";
@@ -58,6 +60,7 @@ public class Main {
 		FileHandler fh;
 		boolean validateArray = true;
 		Time timeCreateDocument = new Time();
+		StringBuffer stringDisplay = new StringBuffer();
 		
 		
 		try(DirectoryStream<Path> stream = Files.newDirectoryStream(p1)){
@@ -118,6 +121,7 @@ public class Main {
 			    long filesSizePerDocument = 0;
 			    long filesSizeAllDocuments = 0;
 			    long filesSizeMatters = 0;
+			    long filesSizeMattersMB = 0;
 			    for(int matter=0;matter< arrayListMatterInfo.size() ;matter++){
 			    	filesSizeAllDocuments = 0;	
 			      for(int doc =0 ;doc < NUMBER_DOCUMENTS ; doc++){
@@ -134,8 +138,16 @@ public class Main {
 			      prefixMatter=0;
 			      filesSizeMatters = filesSizeMatters + filesSizeAllDocuments;
 			    }
-			    System.out.println("\n\n  Total Time in Seconds : "+timeCreateDocument.getTotalUploadTime());
-			    System.out.println("Total files size uploaded to M-Files server: "+filesSizeMatters/1048576+" MegaBytes");
+			    filesSizeMattersMB = filesSizeMatters/1048576;
+			    stringDisplay.append("\n\n  Total Time in Seconds (hh:mm:ss) : "+timeCreateDocument.getStringFormat());
+			    stringDisplay.append("\n\n  Total Time in Seconds : "+timeCreateDocument.getTotalUploadTime());
+			    stringDisplay.append("\n\n  Total files size uploaded to M-Files server: "+filesSizeMattersMB+" MegaBytes.");
+			    stringDisplay.append("\n\n  "+calculateDescriptiveStatistics(timeCreateDocument.getArraytimePerDocument()));
+			    
+			    System.out.println(stringDisplay);
+			    logger.info(stringDisplay.toString());
+			    
+			    
 			    JOptionPane.showMessageDialog(null, "The program ended successfully, check the log file if there are problems");
 			    
 				} catch (Exception e) {
@@ -293,6 +305,19 @@ public class Main {
 						
 		return filesSize;
 	}
+	
+
+/*
+*  Method : calculateDescriptiveStatistics
+*/
+	public static String calculateDescriptiveStatistics(ArrayList<Integer> times){
+	  DescriptiveStatistics stats = new DescriptiveStatistics();
+	  for(int n=0;n< times.size();n++){
+		  stats.addValue(times.get(n));
+	  }
+	  return "Arithmetic mean : "+stats.getMean()+" \n Standard Deviation : "+stats.getStandardDeviation();
+	}
+	
 }
 
 

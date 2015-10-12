@@ -13,5 +13,7 @@
 	<classpathentry kind="lib" path="lib/commons-logging.jar"/>
 	<classpathentry kind="lib" path="lib/json.jar"/>
 	<classpathentry kind="lib" path="lib/jaxrs-api-3.0.5.Final.jar"/>
+	<classpathentry kind="lib" path="lib/commons-math3-3.5-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/commons-math3-3.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
