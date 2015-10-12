@@ -115,20 +115,27 @@ public class Main {
 			    int totalDocuments = arrayListMatterInfo.size()*NUMBER_DOCUMENTS;
 			    int totalMattersCount = arrayListMatterInfo.size();
 			    int totalMatters = arrayListMatterInfo.size();
+			    long filesSizePerDocument = 0;
+			    long filesSizeAllDocuments = 0;
+			    long filesSizeMatters = 0;
 			    for(int matter=0;matter< arrayListMatterInfo.size() ;matter++){
-			      	
+			    	filesSizeAllDocuments = 0;	
 			      for(int doc =0 ;doc < NUMBER_DOCUMENTS ; doc++){
 			    	prefixMatter++;
+			    	filesSizePerDocument = 0;
 			        matterObject = arrayListMatterInfo.get(matter);
 			        timeCreateDocument.Calculate();  
-				    newDocumentObject(tokenEncrypted,"Aut Document "+(String)matterObject[0]+"#"+prefixMatter,(int)matterObject[1],logger);
+				    filesSizePerDocument = newDocumentObject(tokenEncrypted,"Aut Document "+(String)matterObject[0]+"#"+prefixMatter,(int)matterObject[1],logger);
+				    filesSizeAllDocuments = filesSizeAllDocuments + filesSizePerDocument;
 			        timeCreateDocument.stop();
 				    System.out.println("\nRemaining Documents # "+--totalDocuments);
 			      }
 			      System.out.println("Remaining Matters # "+--totalMattersCount+"/"+totalMatters+"\n");
 			      prefixMatter=0;
+			      filesSizeMatters = filesSizeMatters + filesSizeAllDocuments;
 			    }
 			    System.out.println("\n\n  Total Time in Seconds : "+timeCreateDocument.getTotalUploadTime());
+			    System.out.println("Total files size uploaded to M-Files server: "+filesSizeMatters/1048576+" MegaBytes");
 			    JOptionPane.showMessageDialog(null, "The program ended successfully, check the log file if there are problems");
 			    
 				} catch (Exception e) {
@@ -247,12 +254,13 @@ public class Main {
 /*
  * Method : newDocumentObject : Upload Files and build a new Document.
  */
-	public static JSONObject newDocumentObject(String token,String matterName,int item, Logger logger) throws IOException, Exception{
+	public static long newDocumentObject(String token,String matterName,int item, Logger logger) throws IOException, Exception{
 		ArrayList<UploadInfo> listUploadInfo = new ArrayList<UploadInfo>();
 		ArrayList<File> listFile = new ArrayList<File>();
 		Path p1 = Paths.get(DIRECTORY_FILES);
 		ObjectCreationInfo objCreation=null;
 		AdminData admin = new AdminData();
+		long filesSize = 0;
 		try(DirectoryStream<Path> stream = Files.newDirectoryStream(p1)){
 			for(Path file:stream){
 				listFile.add(new File(DIRECTORY_FILES+"\\"+file.getFileName()));
@@ -263,6 +271,7 @@ public class Main {
 		for(File file:listFile){
 			UploadInfo temp = admin.sendFile(URL_MFILE_SERVER+"REST/files", token,file,logger);
 			if(temp instanceof UploadInfo){
+				filesSize = filesSize + temp.getSize();
 				listUploadInfo.add(temp);	
 			}
 							
@@ -282,7 +291,7 @@ public class Main {
 		  System.out.println("Document Name: "+responseObjectVersion.getString("Title"));
 		}*/
 						
-		return null;
+		return filesSize;
 	}
 }
 
